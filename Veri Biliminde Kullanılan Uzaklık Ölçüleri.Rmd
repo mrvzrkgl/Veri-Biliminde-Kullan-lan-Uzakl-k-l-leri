@@ -1,0 +1,773 @@
+---
+title: "**Veri Biliminde Kullanılan Uzaklık Ölçüleri**"
+author: "**Merve Zirekoğlu**"
+date: "2023-03-29"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 5
+    number_sections: true
+    smooth_scroll: false
+    themes: rmdformats::material  
+---
+
+```{css, echo=FALSE}
+.columns {display: flex;}
+h1{color: #A0522D;}
+h2{color: #CD6839;}
+h3{color: #EE7942;}
+```
+
+
+
+# **Uzaklık Ölçüsü Kavramı**
+
+
+Uzaklık ölçüleri; veri bilimi, makine öğrenimi, istatistik gibi alanlarda benzerliği veya farklılığı ölçmek için kullanılırlar. 
+
+Ölçülerin seçimi, alana ve kullanım amacına göre farklılık gösterir. Veri özellikleri, analiz gereksinimleri ve performans hedefleri gibi faktörlerin dikkate alınmasıyla belirlenir.
+
+
+Bu kapsamda aşağıdaki uzaklık ölçüleri incelenip örneklenecektir.
+
+1. Euclidean Distance
+2. Cosine Distance
+3. Manhattan Distance
+4. Chebyshev Distance
+5. Minkowski Distance
+6. Spearman Distance
+7. Kendall Distance
+8. Mahalanobis Distance
+9. Canberra Distance
+10. Jaccard Distance
+11. Hamming Distance
+12. Sorensen Dice Distance
+13. Pearson Distance
+14. Levenshtein Distance
+15. Haversine Distance
+
+
+
+
+## **Benzerlik & Farklılık Kavramları**
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/SimilarityDissimilarity.png)
+
+
+
+Benzerlik ölçüleri, birimlerin birbirlerine olan benzerliklerini göstermek için kullanılıyor olup [0,1] aralığında değer alır. Benzerlik ölçüsü değeri 1'e yaklaştıkça, birimler arası benzerlik artar. 1'den uzaklaştıkça ise benzerlik azalır.
+
+Farklılık ölçüleri ise birimlerin birbirlerine olan farklılıklarını göstermek için kullanılıyor olup [0,1] aralığında değer alır. Farklılık ölçüsü değeri 1'e yaklaştıkça, birimler arası farklılık artar. 1'den uzaklaştıkça ise farklılık azalır.
+
+Uzaklık ölçülerinin düşük olması, benzerliğin fazla olduğunu; yüksek olması ise benzerliğin az olduğunu göstermektedir.
+Benzerlik ölçüsünü baz alacak olursak bu durum tam tersidir. Benzerlik ölçüsü yüksekse farklılık az, benzerlik ölçüsü düşükse farklılık yüksektir.
+
+
+
+
+# **Uzaklık Ölçüleri**
+
+
+
+
+## **Euclidean Distance (Öklid Uzaklığı)**
+
+
+İki nokta arasındaki mesafeyi doğrusal bir çizgi şeklinde ölçer. En çok kullanılan uzaklık ölçülerinden biridir. Kuş uçuşu mesafe olarak da adlandırılır.
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/euclidean.png)
+
+
+
+### **Uygulama**
+
+Ev-otel konumlarına ait veri aşağıdaki gibi olsun. 
+
+ev(30, 40)
+otel(70, 90)
+
+
+Ev-otel mesafesinin öklid ölçüsüne bakalım.
+
+
+```{r}
+ev <- c(30, 40)
+otel <- c(70, 90)
+
+oklid <- sqrt((ev[1] - otel[1])^2 + (ev[2] - otel[2])^2)
+oklid
+```
+
+▶ Öklid, ev-otel arasındaki doğrusal mesafenin 64.03124 birim olduğunu göstermektedir.
+
+
+Uzaklığın görsel gösterimi ise aşağıdaki şekildedir.
+
+```{r}
+library(tidyverse)
+
+ggplot() + 
+  geom_point(aes(x = ev[1], y = ev[2]), color = "#8B475D", size = 5) +
+  geom_text(aes(x = ev[1], y = ev[2], label = "Ev"), vjust = -2) +
+  geom_point(aes(x = otel[1], y = otel[2]), color = "#668B8B", size = 5) +
+  geom_text(aes(x = otel[1], y = otel[2], label = "Otel"), vjust = -2) +
+  geom_segment(aes(x = ev[1], y = ev[2], xend = otel[1], yend = otel[2]), 
+               color = "black", size = 1) +
+  geom_text(aes(x = (ev[1] + otel[1])/2, y = (ev[2] + otel[2])/2, 
+                label = paste(round(oklid, 2), " birim")), vjust = -3) +
+  xlim(0, 100) + ylim(0, 100) +
+  xlab("X Koordinatı") + ylab("Y Koordinatı")
+```
+
+
+
+
+## **Cosine Distance**
+
+
+iki vektör arasındaki açıyı ölçerek vektörlerin birbirlerine olan benzerliklerini hesaplamak için kullanılır. Metinler arasındaki benzerliği vektörel olarak ölçer. iki vektörün birbirine göre olan ilişkisi bir açı ile ifade edilmektedir.
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/cosine.png)
+
+
+
+### **Uygulama**
+
+
+Ev-otel mesafesinin cosine ölçüsüne bakalım.
+
+
+```{r}
+ev <- c(30, 40)
+otel <- c(70, 90)
+
+
+cosine <- sum(ev*otel) / (sqrt(sum(ev^2)) * sqrt(sum(otel^2)))
+cosine
+```
+
+▶ Cosine, 1'e oldukça yakın bir değer olarak bulunmuştur. Ev-otel noktalarının çok yüksek bir benzerliğe sahip olduğunu gösterir.
+
+
+
+
+## **Manhattan Distance**
+
+
+İki nokta arasındaki dikey ve yatay mesafelerin toplamını ölçer. Noktalar arasında mutlak uzaklıkların toplamı alınır.
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/manhattan.png)
+
+
+
+### **Uygulama**
+
+Ev-otel mesafesinin manhattan ölçüsüne bakalım.
+
+
+```{r}
+ev <- c(30, 40)
+otel <- c(70, 90)
+
+manhattan <- sum(abs(ev - otel))
+manhattan
+```
+
+▶ Manhattan, ev-otel arasındaki toplam yatay ve dikey uzaklığın 90 birim olduğunu gösterir.
+
+
+
+```{r}
+library(ggplot2)
+
+ggplot() + 
+  geom_point(aes(x = ev[1], y = ev[2]), color = "#8B475D", size = 5) +
+  geom_text(aes(x = ev[1], y = ev[2], label = "Ev"), vjust = -2) +
+  geom_point(aes(x = otel[1], y = otel[2]), color = "#668B8B", size = 5) +
+  geom_text(aes(x = otel[1], y = otel[2], label = "Otel"), vjust = -2) +
+  geom_segment(aes(x = ev[1], y = ev[2], xend = otel[1], yend = otel[2]), 
+               color = "black", size = 1) +
+  geom_text(aes(x = (ev[1] + otel[1])/2, y = (ev[2] + otel[2])/2, 
+                label = paste(round(manhattan, 2), " birim")), vjust = -3) +
+  xlim(0, 100) + ylim(0, 100) +
+  xlab("X Koordinatı") + ylab("Y Koordinatı")
+```
+
+
+
+
+## **Chebyshev Distance**
+
+
+Herhangi bir koordinat boyutu boyunca iki nokta arasındaki en büyük farkı ölçer. N boyutlu vektörün, bir boyuttaki en uzun mesafesi olarak da açıklanabilir.
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/chebyshev.png)
+
+
+
+### **Uygulama**
+
+Ev-otel mesafesinin chebyshev ölçüsüne bakalım.
+
+
+```{r}
+ev <- c(30, 40)
+otel <- c(70, 90)
+
+chebyshev <- max(abs(ev - otel))
+chebyshev
+```
+
+▶ Chebyshev; ev-otel noktaları arasındaki fark için x koordinatındaki farkın 40 birim, y koordinatındaki farkın ise 50 birim olduğunu göstermektedir
+
+
+```{r}
+ggplot() +
+  geom_point(aes(x = ev[1], y = ev[2]), color = "#8B475D", size = 5) +
+  geom_text(aes(x = ev[1], y = ev[2], label = "Ev"), vjust = -2) +
+  geom_point(aes(x = otel[1], y = otel[2]), color = "#668B8B", size = 5) +
+  geom_text(aes(x = otel[1], y = otel[2], label = "Otel"), vjust = -2) +
+  geom_segment(aes(x = ev[1], y = ev[2], xend = otel[1], yend = otel[2]), 
+               color = "black", size = 1) +
+  geom_text(aes(x = (ev[1] + otel[1])/2, y = (ev[2] + otel[2])/2, 
+                label = paste(round(chebyshev, 2), " birim")), vjust = -3) +
+  xlim(0, 100) + ylim(0, 100) +
+  xlab("X Koordinatı") + ylab("Y Koordinatı")
+```
+
+
+
+
+## **Minkowski Distance**
+
+
+Öklid, Manhattan ve Chebyshev uzaklıklarını içeren genelleştirilmiş bir uzaklık ölçüsüdür.
+
+Eklenen p parametresine göre işlemler yapılır.
+
+p = 1: Manhattan mesafesi
+p = 2: Öklid mesafesi
+p = ∞: Chebyshev mesafesi
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/minkowski.png)
+
+
+
+### **Uygulama**
+
+
+Öncelikle r = 1'i sağlayalım.
+
+```{r}
+ev <- c(30, 40)
+otel <- c(70, 90)
+
+minkowski_manhattan <- sum(abs(otel - ev))
+minkowski_manhattan
+```
+
+▶ Minkowski'nin Manhattan uzaklığına eşit olduğunu görürüz.
+
+
+Şimdi ise r = 2'yi sağlayalım.
+
+```{r}
+ev <- c(30, 40)
+otel <- c(70, 90)
+
+minkowski_euclidean <- sqrt(sum((otel - ev)^2))
+minkowski_euclidean
+```
+
+▶ Minkowski'nin Öklid uzaklığına eşit olduğunu görürüz.
+
+
+
+
+## **Spearman Distance**
+
+
+İki değişken arasındaki sıralı ilişkiyi ölçer. Her iki değişkenin sıralarını kullanarak hesaplanır. Birbirine çok benzer ya da yakın olan ölçeklerdeki veriler arasındaki ilişkiyi ölçmek için kullanılır.
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/spearman.png)
+
+
+
+### **Uygulama**
+
+Ev-otel mesafesinin spearman ölçüsüne bakalım.
+
+
+```{r}
+ev <- c(30, 40)
+otel <- c(70, 90)
+
+spearman <- cor(ev, otel, method = "spearman")
+spearman
+```
+
+▶ Spearman, ev-otel arasındaki ilişkinin; mükemmel, pozitif yönde bir ilişki olduğunu ve iki noktanın birlikte hareket ettiğini göstermektedir.
+
+
+
+
+## **Kendall Distance**
+
+
+İki değişkenin sıralarını kullanarak hesaplanır. İki değişken arasındaki ilişkiyi, özdeşliği ve hangi oranda olduğunu ölçer. 
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/kendall.png)
+
+
+
+### **Uygulama**
+
+Ev-otel mesafesinin kendall ölçüsüne bakalım.
+
+
+```{r}
+ev <- c(30, 40)
+otel <- c(70, 90)
+
+kendall <- cor.test(ev, otel, method = "kendall")
+kendall
+```
+
+▶ Kendall korelasyon katsayısı 1 olarak hesaplanır. Yani, ev-otel vektörleri arasında tam bir sıralı ilişki vardır. 
+
+
+
+
+## **Mahalanobis Distance**
+
+
+İki nokta arasındaki uzaklığı, veri setinin dağılımına dayalı olarak ölçer. Bir deneğin, diğer deneklerin merkezinden uzaklığını gösterir. Bu merkez nokta, tüm değişkenlerin ortalamalarından oluşturulur. Kategorik değerler için teorik olarak doğru sonuca ulaşılamaz. 
+
+Verilerin çok değişkenli normal dağılıma uygunluğu varsayımı altında, ki-kare dağılımına uygunluk gösterir. Korelasyonsuz değişkenler için de Öklid uzaklığına denk gelir. 
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/mahalanobis.png)
+
+
+
+### **Uygulama**
+
+
+Önceki hesaplamalarda kullanılan Ev-Otel bilgileri, kovaryans matrisisnin tersi anlamlı sonuç vermediği için Mahalanobis Uzaklığı hesaplamada uygun değildir. Bu sebeple veri setimizde değişiklik yaparak Mahalanobis Uzaklığı hesaplayalım.
+
+ev <- c(6, 5, 3, 1)
+otel <- c(1, 4, 7, 9) olarak alınsın.
+
+```{r}
+ev <- c(6, 5, 3, 1)
+otel <- c(1, 4, 7, 9)
+
+veri <- data.frame(ev, otel)
+kovaryans <- cov(veri)
+
+mahalanobis <- mahalanobis(veri, center = colMeans(veri), cov = kovaryans)
+mahalanobis
+```
+
+▶ Mahalanobis, ev-otel arasındaki en düşük uzaklık değerini 0.750000 bulmaktadır. Bağlı olunan bu iki nokta diğerlerine göre daha benzerdir.
+
+
+
+
+## **Canberra Distance**
+
+
+İki vektör arasındaki farklılık oranlarını hesaplar. Manhattan mesafesinin ağırlıklı bir versiyonudur. Negatif olmayan değerler alan ve sıfıra yakın değerdeki küçük noktalar için duyarlı bir uzaklık ölçütüdür. Biyomedikal verilerin benzerliğini ölçmek için de kullanılır.
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/canberra.png)
+
+
+
+### **Uygulama**
+
+Ev-otel mesafesinin canberra ölçüsüne bakalım.
+
+
+```{r}
+ev <- c(30, 40)
+otel <- c(70, 90)
+
+canberra <- sum(abs(ev - otel) / (abs(ev) + abs(otel)))
+canberra
+```
+
+▶ Canberra, ev-otel konumları arasındaki benzerlik düzeyini 0.7846154 olarak ölçmüştür. Pek yüksek bir benzerlik sayılmaz.
+
+
+
+
+## **Jaccard Distance**
+
+
+İki kümenin ortak elemanlarının oranını ölçer. İki öğe arasındaki benzerliği ölçmek için kullanılır.
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/jaccard.png)
+
+
+
+### **Uygulama**
+
+Benzerlik ölçüleri hesaplamak için 2 öğrencinin aldıkları notları veri seti haline getirelim.
+
+1. öğrencinin notları: 45, 80, 60, 90, 30
+2. öğrencisinin notları: 60, 70, 40, 45, 10
+
+
+Öncelikle öğrencilerin notlarını ikili olarak sıralamalıyız. 
+Bu anlamda geçme notunu 50 olarak seçelim ve 50'nin altında olan notlara 0, 50'ye eşit ya da üzerinde olan notlara 1 ataması yapalım.
+
+```{r}
+ogrenci_1 <- c(45, 80, 60, 90, 30)
+ogrenci_2 <- c(60, 70, 40, 45, 10)
+
+ogrenci_1_binary <- ifelse(ogrenci_1 >= 50, 1, 0)
+ogrenci_2_binary <- ifelse(ogrenci_2 >= 50, 1, 0)
+
+jaccard <- sum(ogrenci_1_binary & ogrenci_2_binary) / sum(ogrenci_1_binary | ogrenci_2_binary)
+jaccard
+```
+
+▶ Jaccard, iki öğrencinin notlarının benzerliğinin düşük olduğunu göstermektedir. 
+
+
+
+
+## **Hamming Distance**
+
+
+Hamming Uzaklığı, eşit uzunluktaki iki string karşılaştırırken, iki bitin farklı olduğu bit konumlarının sayısıdır. Tüm verilere bakar ve kaç özelliğin farklı olduğunun sonucunu verir. Kategorik verilerin benzerliğini ölçmek için kullanılır. 
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/hamming.png)
+
+
+
+### **Uygulama**
+
+
+```{r}
+ogrenci_1 <- c(45, 80, 60, 90, 30)
+ogrenci_2 <- c(60, 70, 40, 45, 10)
+
+# Öğrenci notlarını 0'larla birleştirerek aynı uzunluğa getirme
+max_len <- max(length(ogrenci_1), length(ogrenci_2))
+ogrenci_1_new <- c(ogrenci_1, rep(0, max_len - length(ogrenci_1)))
+ogrenci_2_new <- c(ogrenci_2, rep(0, max_len - length(ogrenci_2)))
+
+# Hamming uzaklığını hesaplama
+hamming <- sum(ogrenci_1_new != ogrenci_2_new)
+hamming
+```
+
+▶ Hamming'e göre öğrenci_1'in notlarının öğrenci_2'nin notlarından tamamen farklı olduğu söylenebilir.
+
+
+
+
+## **Sorensen Dice Distance**
+
+
+String benzerlik ölçümlerinde kullanılır. İki örneğin benzerlik oranını hesaplamayı amaçlar. [0,1] arası değerler alır. 1'e yaklaştıkça benzerlik artar.
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/sorensendice.png)
+
+
+
+### **Uygulama**
+
+
+Öğrencilerin notlarını ikili olarak sıralamalıyız. 
+Bu anlamda geçme notunu 50 olarak seçelim ve 50'nin altında olan notlara 0, 50'ye eşit ya da üzerinde olan notlara 1 ataması yapalım.
+
+```{r}
+ogrenci_1 <- c(45, 80, 60, 90, 30)
+ogrenci_2 <- c(60, 70, 40, 45, 10)
+
+ogrenci_1_binary <- ifelse(ogrenci_1 >= 50, 1, 0)
+ogrenci_2_binary <- ifelse(ogrenci_2 >= 50, 1, 0)
+
+num <- sum(ogrenci_1_binary & ogrenci_2_binary)
+denom <- sum(ogrenci_1_binary) + sum(ogrenci_2_binary)
+
+sorensen_dice <- 2 * num / denom
+
+sorensen_dice
+```
+
+▶ Sorensen Dice, iki kümenin benzerliğinin orta düzeyde olduğunu gösterir.
+
+
+
+
+## **Pearson Correlation**
+
+
+İki değişken arasındaki ilişkiyi ölçer ve genellikle ölçeklendirilmiş veriler arasında kullanılır.
+Korelasyon katsayısı, iki veri noktası arasındaki doğrusal bağımlılık derecesini ölçmek için kullanılır.
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/pearson.png)
+
+
+
+### **Uygulama**
+
+
+```{r}
+ogrenci_1 <- c(45, 80, 60, 90, 30)
+ogrenci_2 <- c(60, 70, 40, 45, 10)
+
+cor(ogrenci_1 , ogrenci_2, method = "pearson")
+```
+
+▶ Pearson'a göre; iki değişken arasında orta derecede pozitif bir ilişki vardır. 
+
+
+
+
+## **Levenshtein Distance**
+
+
+İki dize arasındaki minimum düzenleme sayısını hesaplar, derecelendirir. Karakter dizelerinin benzerliğini ölçmek için kullanılır.
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/levenshtein.png)
+
+
+
+### **Uygulama**
+
+
+"nominal" ve "ordinal" kelimeleri için Lvenshtein hesaplayalım.
+
+```{r}
+# stringdist paketini kullanarak hesaplama yapalım
+
+library(stringdist)
+stringdist("nominal", "ordinal", method = "lv")
+```
+
+▶ Levenshtein, "nominal" stringini "ordinal" stringine dönüştürmek için üç adım gerektiğini söyler. Örneğin, "n" harfi "o" harfiyle değiştirilebilir, "m" harfi "r" harfiyle değiştirilebilir ve "a" harfi "i" harfiyle değiştirilebilir.
+
+
+
+
+## **Haversine Distance**
+
+
+Bir kürenin yüzeyindeki iki nokta arasındaki açısal mesafedir. Coğrafi verilerin benzerliğini ölçmek için kullanılır.
+Her noktanın ilk koordinatının enlem, ikinci koordinatın ise radyan cinsinden verilen boylam olduğu varsayılır. Veri, 2 boyutlu olmalıdır.
+
+
+
+### **Formül**
+
+
+![](C:/Users/zrkgl/Desktop/Veri Biliminde Kullanılan Uzaklık Ölçüleri/photos/haversine.png)
+
+
+
+### **Uygulama**
+
+
+istanbul <- c(41.0082, 28.9784)
+ankara <- c(39.9255, 32.8667)
+için hesaplama yapalım.
+
+```{r}
+library(geosphere)
+
+istanbul <- c(41.0082, 28.9784)
+ankara <- c(39.9255, 32.8667)
+matris <- rbind(istanbul, ankara)
+
+distm(matris, fun = distHaversine)
+```
+
+
+▶ İstanbul - Ankara mesafesinin 445011.6 olduğunu görmekteyiz.
+
+
+
+
+# **Uzaklıkların Karşılaştırması**
+
+
+**1. Euclidean Distance:** Pisagor teoremini kullanır. Küçük boyutlu verilerde oldukça kullanışlıdır. Özellikle 3 boyutlu uzayda farklı veri türleri arasında kullanılabilir. Ancak boyut arttıkça, zorlaşır. Uygulaması basit, kullanımı sezgiseldir.
+
+
+**2. Cosine Distance:** Büyük boyutlu verilerde kullanılabilse de negatif ilişkileri hesaba katmayıp yönlerle ilgilenir. 
+
+
+**3. Manhattan Distance:** Veri boyutu arttıkça hesaplamalar daha hızlı olur. Ancak 3 boyutlu uzayda kullanıldığında işlevselliği azalır. Mesafeyi dik açılarla hesaplar. Genellikle mümkün olan en kısa yolu bulmadığı için öklid mesafesinden daha yüksek bir mesafe değeri verme olasılığı yüksektir. 
+
+
+**4. Chebyshev Distance:** Boyut arttıkça daha hızlı hesaplamalar yapar. Fakat hesaplama karmaşıklığı arttıkça işlevselliği azalır. Sadece bir eksen boyunca maksimum mesafedir. Sınırsız 8 yönlü harekete izin veren oyunlarda faydalı bir ölçü olabilir
+
+
+**5. Minkowski Distance:** Euclidean, Manhattan ve Chebyshev uzaklık ölçüleri arasında birleştirilmiş bir ölçüdür. Avantajı, bu farklı uzaklık ölçüleri arasında bir geçiş olanağı sağlamasıdır. Dezavantajı, her bir uzaklık ölçüsü için belirli parametrelerin belirlenmesi gerektiğidir. Normlu vektör uzayında (n boyutlu gerçek uzay) kullanılır. 
+Üç gereksinimi vardır:
+
+* Sıfır Vektör: Sıfır vektörünün uzunluğu sıfır iken, diğer her vektörün pozitif bir uzunluğu vardır.
+* Skaler Faktör: Vektörü pozitif bir sayı ile çarptığınızda, yönü korunurken uzunluğu değiştirilir.
+* Üçgen Eşitsizliği: İki nokta arasındaki en kısa mesafe düz bir çizgidir.
+
+
+**6. Spearman Distance:** İki veri seti arasındaki sıralamaların farkını ölçer. Aykırı değerlerin etkisini azaltır. Fakat yalnızca sıralama bilgilerine dayandığı için bazı bilgileri kaybedebilir. Pearson korelasyon katsayısından farklı olarak, herhangi bir ilişki aramaksızın, değişkenler arasındaki ilişkiyi (artan veya azalan bir eğilim) ölçer. 
+
+
+**7. Kendall Distance:** Spearman distance gibi, iki veri seti arasındaki sıralamaların farkını ölçer. Sıralamanın aykırı değerlerden etkilenmemesi büyük bir avantajıdır. Fakat sadece sıralama bilgilerine dayandığı için bazı bilgileri kaybedebilir. Küçük veri setleri veya aykırı değerlerle karşılaşıldığında daha sağlam bir yöntem olarak kabul edilir.
+
+
+**8. Mahalanobis Distance:** Veri setindeki değişkenlerin birbirleriyle ilişkili olduğu durumlarda etkilidir. Ancak hesaplamalar yüksek boyutlu verilerde yavaş olabilir.
+
+
+**9. Canberra Distance:** Yüksek boyutlu ve seyrek verilerin işlenmesinde ve veri setindeki sıfır olmayan öğelerin varlığı durumunda etkilidir.
+
+
+**10. Jaccard Distance:** Verilerin büyüklüğünden oldukça etkilenir. Büyük veri kümelerinin endeks üzerinde büyük bir etkisi olabilir, çünkü kesişme noktasını benzer tutarken birleşmeyi önemli ölçüde artırabilir. Genellikle ikili veya ikili verilerin kullanıldığı uygulamalarda kullanılır.
+
+
+**11. Hamming Distance:** Genellikle eşit uzunluktaki iki ikili dizeyi karşılaştırmak için kullanılıyor olup birbirinden farklı olan karakter sayısını hesaplayarak dizelerin birbirlerine benzerliklerini karşılaştırmak için de kullanılabilir. İki vektör eşit uzunlukta olmadığında hamming mesafesinin kullanılması zordur.
+
+
+**12. Sorensen-Dice Distance:** Benzerlik ve çeşitliliği ölçme açısından Jaccard'a çok benzer. Ancak Sørensen-Dice biraz daha sezgiseldir çünkü iki set arasındaki örtüşme yüzdesi olarak görülebilir. 
+
+
+**13. Pearson Distance:** Veri setindeki değişkenlerin birbirleriyle ilişkili olduğu durumlarda etkili olmakla birlikte veri setindeki aşırı değerler de hesaplamaları etkilemektedir.
+
+
+**14. Levenshtein Distance:** Dize tabanlı verilerin işlenmesine olanak sağlar. Fakat uzaklıkların hesaplanması yavaş olabilir.
+
+
+**15. Haversine Distance:** Boylamları ve enlemleri göz önüne alındığında bir küre üzerindeki iki nokta arasındaki mesafedir. İki nokta arasındaki en kısa çizgiyi hesaplaması kısmında Öklid mesafesine çok benzer. Ancak farkı; iki nokta bir küre üzerinde olduğu için düz bir çizginin mümkün olmamasıdır. 
+
+
+
+
+# **Veri Türüne Göre Ölçü Seçimi**
+
+
+En başta değinildiği gibi ölçülerin seçimi, alana ve kullanım amacına göre farklılık gösterir. Veri özellikleri, analiz gereksinimleri ve performans hedefleri gibi faktörlerin dikkate alınmasıyla belirlenir. Bazı durumlarda farklı ölçüler birleştirilip özel bir ölçü de oluşturulabilir. 
+
+Genel hatlarıyla ölçü seçimi şu şekilde yapılmaktadır:
+
+* Sayısal Veriler: Euclidean Distance, Cosine Distance, Manhattan Distance, Chebyshev Distance, Minkowski Distance, Mahalanobis Distance, Pearson Correlation
+
+* Sıralı Veriler: Spearman Distance, Kendall Distance
+
+* Seyrek Veriler: Canberra Distance
+
+* Kümeler: Jaccard Distance, Sorensen Dice Distance
+
+* Dize Verileri: Levensthein Distance
+
+* Coğrafi Veriler: Haversine Distance
+
+
+
+
+# **Kaynaklar**
+
+
+<https://www.youtube.com/watch?v=Q8ht2QE5UYk>
+
+<https://towardsdatascience.com/9-distance-measures-in-data-science-918109d069fa>
+
+<http://www.dspace.yildiz.edu.tr/xmlui/bitstream/handle/1/4201/0033753.pdf?sequence=1&isAllowed=y>
+
+<https://aof.sorular.net/ozet/veri-madenciligi-Key-unite-4-benzerlik-ve-uzaklik-olculeri>
+
+<https://www.datasciencearth.com/veri-madenciligi-ve-oklid-uzakligi/>
+
+<https://medium.com/geekculture/7-important-distance-metrics-every-data-scientist-should-know-11e1b0b2ebe3>
+
+<https://vitalflux.com/different-types-of-distance-measures-in-machine-learning/>
+
+<https://blog.esri.com.tr/2018/12/25/arcgiste-mesafe-analizlerine-genel-bir-bakis/>
+
+<https://bilgisayarkavramlari.com/2012/11/08/kosinus-benzerligi-cosine-similarity-2/>
+
+<https://medium.com/machine-learning-t%C3%BCrkiye/machine-learning-mesafeleri-8ac88ca393>
+
+<https://medium.com/batech/k-en-yak%C4%B1n-kom%C5%9Fu-algoritmas%C4%B1-k-nearest-neighbors-algorithm-16e5ab69af2e>
+
+<https://acikders.ankara.edu.tr/pluginfile.php/133403/mod_resource/content/0/4.2.spssvarsay%C4%B1m.pdf>
+
+<https://www.kaggle.com/datasets/tunahandeniz/ichipro-uzaklik-olculeri>
+
+<https://en.wikipedia.org/wiki/Levenshtein_distance>
+
+
+
