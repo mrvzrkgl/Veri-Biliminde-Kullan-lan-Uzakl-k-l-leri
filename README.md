@@ -1,0 +1,1 @@
+# Veri-Biliminde-Kullan-lan-Uzakl-k-l-leri
